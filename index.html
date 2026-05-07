@@ -2,9 +2,60 @@
 
 <html lang="en">
 <head>
+
+<script>
+// ── TIME-OF-DAY THEME ENGINE ──────────────────────────────────────────────
+(function() {
+  const themes = {
+    dawn:      { hours: [5,6,7,8,9,10,11],          emoji: '🌅', label: 'good morning'  },
+    afternoon: { hours: [12,13,14,15,16],            emoji: '☀️',  label: 'good afternoon'},
+    dusk:      { hours: [17,18,19,20],               emoji: '🌇', label: 'golden hour'   },
+    midnight:  { hours: [21,22,23,0,1,2,3,4],       emoji: '🌙', label: 'good night'    },
+  };
+
+  function getTheme() {
+    const h = new Date().getHours();
+    for (const [name, t] of Object.entries(themes)) {
+      if (t.hours.includes(h)) return { name, ...t };
+    }
+    return { name: 'afternoon', ...themes.afternoon };
+  }
+
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t.name);
+    const badge = document.getElementById('timeBadge');
+    if (badge) {
+      badge.querySelector('.time-badge-emoji').textContent = t.emoji;
+      badge.querySelector('.time-badge-text').textContent  = t.label;
+    }
+  }
+
+  // Apply immediately (before paint)
+  const initial = getTheme();
+  document.documentElement.setAttribute('data-theme', initial.name);
+
+  // On DOM ready, insert the badge and set up hourly refresh
+  document.addEventListener('DOMContentLoaded', () => {
+    // Insert badge
+    const badge = document.createElement('div');
+    badge.className = 'time-badge';
+    badge.id = 'timeBadge';
+    badge.innerHTML = `
+      <span class="time-badge-dot"></span>
+      <span class="time-badge-emoji">${initial.emoji}</span>
+      <span class="time-badge-text">${initial.label}</span>
+    `;
+    document.body.appendChild(badge);
+
+    // Re-check every minute
+    setInterval(() => applyTheme(getTheme()), 60 * 1000);
+  });
+})();
+</script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sunny Side Up!</title>
+  <title>Ehsanie Hairoddin — Portfolio</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -223,18 +274,18 @@ body.loaded .hero-name .swoosh::after { transform: scaleX(1); }
   flex-wrap: wrap;
   margin-bottom: 24px;
   padding: 12px 16px;
-  background: rgba(255,255,255,0.6);
+  background: rgba(128,128,128,0.12);
   backdrop-filter: blur(8px);
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.8);
+  border: 1px solid rgba(128,128,128,0.2);
 }
 .contact-item {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: var(--mid);
+  font-size: 12px; color: var(--dark);
   text-decoration: none;
   transition: color 0.2s;
 }
-.contact-item:hover { color: var(--dark); }
+.contact-item:hover { color: var(--blush); }
 .contact-icon { font-size: 14px; }
 
 /* Trait bubbles */
@@ -701,6 +752,134 @@ body.loaded .hero-name .swoosh::after { transform: scaleX(1); }
 .page-wrap {
   overflow-x: hidden;
 }
+
+/* ===== TIME-OF-DAY THEMES ===== */
+
+/* Theme transition — smooth across all CSS vars */
+*, *::before, *::after {
+  transition: background-color 2s ease, color 1.5s ease, border-color 1.5s ease, box-shadow 1.5s ease !important;
+}
+/* But keep animation/transform snappy */
+.float-player-card{ transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease !important; }
+
+/* DAWN  05:00 – 11:59 — soft blush, warm peach sky */
+[data-theme="dawn"] {
+  --bg:       #f5ede6;
+  --card-bg:  #fdf6f0;
+  --white:    #fffaf7;
+  --dark:     #2a1a10;
+  --mid:      #6b4c3b;
+  --light:    #a07860;
+  --blush:    #e8956a;
+  --soft-pink:#f5c4a0;
+  --lavender: #d4b8a8;
+  --peach:    #f0a882;
+  --sage:     #b8c8a0;
+  --sky:      #f0c8a0;
+}
+[data-theme="dawn"] body { background: var(--bg); }
+[data-theme="dawn"] .bg-blob.blob1 { background: #f5b08a; }
+[data-theme="dawn"] .bg-blob.blob2 { background: #f0c8a0; }
+[data-theme="dawn"] .bg-blob.blob3 { background: #e8d0b8; }
+[data-theme="dawn"] .time-badge { background: rgba(240,168,130,0.2); color: #b05828; border-color: rgba(240,168,130,0.4); }
+
+/* AFTERNOON  12:00 – 16:59 — original pastel (default) */
+[data-theme="afternoon"] {
+  --bg:       #ede9e4;
+  --card-bg:  #f5f1ed;
+  --white:    #fefefe;
+  --dark:     #1a1a1a;
+  --mid:      #555;
+  --light:    #888;
+  --blush:    #e8a4a4;
+  --soft-pink:#f2c4c4;
+  --lavender: #c3b8d8;
+  --peach:    #f5c9a0;
+  --sage:     #a8c5b5;
+  --sky:      #a8c8d8;
+}
+[data-theme="afternoon"] body { background: var(--bg); }
+[data-theme="afternoon"] .bg-blob.blob1 { background: #f2c4c4; }
+[data-theme="afternoon"] .bg-blob.blob2 { background: #c3b8d8; }
+[data-theme="afternoon"] .bg-blob.blob3 { background: #f5c9a0; }
+[data-theme="afternoon"] .time-badge { background: rgba(232,164,164,0.15); color: #c06060; border-color: rgba(232,164,164,0.35); }
+
+/* DUSK  17:00 – 20:59 — warm purples, mauve, golden */
+[data-theme="dusk"] {
+  --bg:       #2a1f2e;
+  --card-bg:  #342840;
+  --white:    #3e2f4a;
+  --dark:     #f0e8f5;
+  --mid:      #c8b8d8;
+  --light:    #8878a8;
+  --blush:    #c890c8;
+  --soft-pink:#d8a0c0;
+  --lavender: #9878c8;
+  --peach:    #e8a870;
+  --sage:     #88a888;
+  --sky:      #7898c8;
+}
+[data-theme="dusk"] body { background: var(--bg); }
+[data-theme="dusk"] .bg-blob.blob1 { background: #6040a0; }
+[data-theme="dusk"] .bg-blob.blob2 { background: #c07040; }
+[data-theme="dusk"] .bg-blob.blob3 { background: #902870; }
+[data-theme="dusk"] .bg-blob { opacity: 0.2; }
+[data-theme="dusk"] .time-badge { background: rgba(200,144,200,0.15); color: #d8a8e8; border-color: rgba(200,144,200,0.3); }
+[data-theme="dusk"] .insta-card,
+[data-theme="dusk"] .currently-card,
+[data-theme="dusk"] .guestbook-form,
+[data-theme="dusk"] .entry-card { box-shadow: 4px 6px 24px rgba(0,0,0,0.3); }
+
+/* MIDNIGHT  21:00 – 04:59 — deep navy, cool blues, silver */
+[data-theme="midnight"] {
+  --bg:       #0d0f1a;
+  --card-bg:  #141828;
+  --white:    #1a2035;
+  --dark:     #e8eeff;
+  --mid:      #9098c8;
+  --light:    #5060a0;
+  --blush:    #7888d8;
+  --soft-pink:#8878c0;
+  --lavender: #6878c8;
+  --peach:    #a898d0;
+  --sage:     #608878;
+  --sky:      #4870b8;
+}
+[data-theme="midnight"] body { background: var(--bg); }
+[data-theme="midnight"] .bg-blob.blob1 { background: #2838a0; }
+[data-theme="midnight"] .bg-blob.blob2 { background: #481870; }
+[data-theme="midnight"] .bg-blob.blob3 { background: #183870; }
+[data-theme="midnight"] .bg-blob { opacity: 0.18; }
+[data-theme="midnight"] .time-badge { background: rgba(120,136,216,0.15); color: #a8b8f0; border-color: rgba(120,136,216,0.3); }
+[data-theme="midnight"] .insta-card,
+[data-theme="midnight"] .currently-card,
+[data-theme="midnight"] .guestbook-form,
+[data-theme="midnight"] .entry-card { box-shadow: 4px 6px 32px rgba(0,0,0,0.5); }
+
+/* Time badge widget */
+.time-badge {
+  position: fixed;
+  top: 20px; right: 20px;
+  z-index: 9990;
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 14px;
+  border-radius: 100px;
+  border: 1px solid;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: default;
+  transition: opacity 0.5s ease !important;
+  font-family: 'DM Sans', sans-serif;
+}
+.time-badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
 </style>
 </head>
 <body>
@@ -867,6 +1046,7 @@ body.loaded .hero-name .swoosh::after { transform: scaleX(1); }
 
 </div>
 
+
 <hr class="divider"/>
 
 <!-- GUESTBOOK -->
@@ -977,7 +1157,25 @@ body.loaded .hero-name .swoosh::after { transform: scaleX(1); }
       sky: 'linear-gradient(135deg,#a8c8d8,#80b0c8)',
     };
 
-    let entries = JSON.parse(localStorage.getItem('gb_entries') || '[]');
+    // ── SUPABASE CONFIG ──────────────────────────────────────────────────────
+    const SB_URL = 'https://kpevnqnnajefeatjzdtp.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtwZXZucW5uYWplZmVhdGp6ZHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNzI5MzMsImV4cCI6MjA5Mzc0ODkzM30.FQ11whhlYnO4W6PYo879dhS0-PUrhYxnVvKhoXCJdJo';
+
+    async function sbFetch(path, options = {}) {
+      const res = await fetch(SB_URL + path, {
+        ...options,
+        headers: {
+          'apikey': SB_KEY,
+          'Authorization': 'Bearer ' + SB_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': options.prefer || '',
+          ...options.headers
+        }
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.status === 204 ? null : res.json();
+    }
+
     let selectedEmoji = '🌸';
 
     // Emoji picker
@@ -999,8 +1197,6 @@ body.loaded .hero-name .swoosh::after { transform: scaleX(1); }
       charCount.style.color = left < 40 ? 'var(--blush)' : 'var(--light)';
     });
 
-    function saveEntries() { localStorage.setItem('gb_entries', JSON.stringify(entries)); }
-
     function formatDate(ts) {
       const d = new Date(ts);
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -1008,42 +1204,6 @@ body.loaded .hero-name .swoosh::after { transform: scaleX(1); }
 
     function initials(name) {
       return name.trim().split(' ').map(w => w[0]?.toUpperCase() || '').join('').slice(0,2) || '??';
-    }
-
-    function renderEntries() {
-      const grid = document.getElementById('entriesGrid');
-      const empty = document.getElementById('emptyState');
-      const count = document.getElementById('entryCount');
-      count.textContent = entries.length + (entries.length === 1 ? ' note' : ' notes');
-
-      // Remove old cards (keep empty state)
-      grid.querySelectorAll('.entry-card').forEach(c => c.remove());
-
-      if (entries.length === 0) {
-        empty.style.display = 'block';
-        return;
-      }
-      empty.style.display = 'none';
-
-      [...entries].reverse().forEach((e, i) => {
-        const card = document.createElement('div');
-        card.className = 'entry-card';
-        card.dataset.color = e.color;
-        card.style.animationDelay = (i * 0.07) + 's';
-        card.innerHTML = `
-          <div class="entry-top">
-            <div class="entry-avatar" style="background:${AVATAR_BG[e.color]}">${initials(e.name)}</div>
-            <div class="entry-meta">
-              <div class="entry-name">${escHtml(e.name)}</div>
-              <div class="entry-date">${formatDate(e.ts)}</div>
-            </div>
-            <div class="entry-mood">${e.emoji}</div>
-          </div>
-          <div class="entry-message">${escHtml(e.message)}</div>
-          ${e.from ? `<div class="entry-from">📍 ${escHtml(e.from)}</div>` : ''}
-        `;
-        grid.appendChild(card);
-      });
     }
 
     function escHtml(str) {
@@ -1057,36 +1217,100 @@ body.loaded .hero-name .swoosh::after { transform: scaleX(1); }
       setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    document.getElementById('submitBtn').addEventListener('click', () => {
-      const name = document.getElementById('gb-name').value.trim();
-      const message = document.getElementById('gb-message').value.trim();
-      const from = document.getElementById('gb-from').value.trim();
+    function renderEntries(entries) {
+      const grid = document.getElementById('entriesGrid');
+      const empty = document.getElementById('emptyState');
+      const count = document.getElementById('entryCount');
+      count.textContent = entries.length + (entries.length === 1 ? ' note' : ' notes');
 
-      if (!name) { document.getElementById('gb-name').focus(); return; }
+      grid.querySelectorAll('.entry-card').forEach(c => c.remove());
+
+      if (entries.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      entries.forEach((e, i) => {
+        const color = e.color || COLORS[Math.floor(Math.random() * COLORS.length)];
+        const card = document.createElement('div');
+        card.className = 'entry-card';
+        card.dataset.color = color;
+        card.style.animationDelay = (i * 0.07) + 's';
+        card.innerHTML = `
+          <div class="entry-top">
+            <div class="entry-avatar" style="background:${AVATAR_BG[color]}">${initials(e.name)}</div>
+            <div class="entry-meta">
+              <div class="entry-name">${escHtml(e.name)}</div>
+              <div class="entry-date">${formatDate(e.created_at)}</div>
+            </div>
+            <div class="entry-mood">${e.emoji || '🌸'}</div>
+          </div>
+          <div class="entry-message">${escHtml(e.message)}</div>
+          ${e.from_location ? `<div class="entry-from">📍 ${escHtml(e.from_location)}</div>` : ''}
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    async function loadEntries() {
+      try {
+        const data = await sbFetch('/rest/v1/guestbook?select=*&order=created_at.desc');
+        renderEntries(data || []);
+      } catch(err) {
+        console.error('Failed to load guestbook:', err);
+        renderEntries([]);
+      }
+    }
+
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+      const name    = document.getElementById('gb-name').value.trim();
+      const message = document.getElementById('gb-message').value.trim();
+      const from    = document.getElementById('gb-from').value.trim();
+
+      if (!name)    { document.getElementById('gb-name').focus(); return; }
       if (!message) { msgInput.focus(); return; }
 
-      const entry = {
-        name, message, from,
-        emoji: selectedEmoji,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        ts: Date.now()
-      };
-      entries.push(entry);
-      saveEntries();
-      renderEntries();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'sending… 🌸';
 
-      // Reset form
-      document.getElementById('gb-name').value = '';
-      document.getElementById('gb-from').value = '';
-      msgInput.value = '';
-      charCount.textContent = '280 left';
-      charCount.style.color = 'var(--light)';
+      try {
+        await sbFetch('/rest/v1/guestbook', {
+          method: 'POST',
+          prefer: 'return=minimal',
+          body: JSON.stringify({
+            name,
+            message,
+            from_location: from || null,
+            emoji: selectedEmoji,
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+          })
+        });
 
-      showToast('✦ Note added — thank you! 🌸');
+        // Reset form
+        document.getElementById('gb-name').value = '';
+        document.getElementById('gb-from').value = '';
+        msgInput.value = '';
+        charCount.textContent = '280 left';
+        charCount.style.color = 'var(--light)';
+        selectedEmoji = '🌸';
+        document.querySelectorAll('.emoji-opt').forEach(b => b.classList.remove('selected'));
+        document.querySelector('.emoji-opt[data-emoji="🌸"]')?.classList.add('selected');
+
+        showToast('✦ Note added — thank you! 🌸');
+        await loadEntries();
+      } catch(err) {
+        console.error('Failed to submit:', err);
+        showToast('something went wrong, try again! 🌷');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Leave a note ✦';
+      }
     });
 
-    // Initial render
-    renderEntries();
+    // Load on page start
+    loadEntries();
   </script>
 
 
@@ -1133,6 +1357,9 @@ body.loaded .hero-name .swoosh::after { transform: scaleX(1); }
       }
     });
   </script>
+
+
+</div>
 
 </body>
 </html>
