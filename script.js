@@ -1,4 +1,4 @@
-// ===== DAILY AFFIRMATION =====
+// ===== RANDOM AFFIRMATION ON EVERY PAGE LOAD =====
 const affirmations = [
   { emoji: '🌸', text: "you're blooming exactly where you're planted" },
   { emoji: '✨', text: "you have magic within you, don't forget it" },
@@ -10,30 +10,20 @@ const affirmations = [
   { emoji: '🦋', text: "you're becoming who you're meant to be" },
   { emoji: '🌼', text: 'small steps are still progress' },
   { emoji: '🍃', text: "breathe. you've got this." },
+  { emoji: '🐌', text: 'slow progress is still progress' },
+  { emoji: '🌈', text: 'you are exactly where you need to be' },
+  { emoji: '🕯️', text: 'your light matters. keep glowing' },
+  { emoji: '🧸', text: 'you are loved and enough, always' },
+  { emoji: '☁️', text: 'float through today with ease' },
 ];
 
-function getDailyAffirmation() {
-  const today = new Date().toISOString().split('T')[0];
-  const stored = localStorage.getItem('dailyAffirmation');
-
-  if (stored && JSON.parse(stored).date === today) {
-    return JSON.parse(stored).affirmation;
-  }
-
-  const affirmation = affirmations[Math.floor(Math.random() * affirmations.length)];
-  localStorage.setItem(
-    'dailyAffirmation',
-    JSON.stringify({
-      date: today,
-      affirmation: affirmation,
-    })
-  );
-  return affirmation;
+function getRandomAffirmation() {
+  return affirmations[Math.floor(Math.random() * affirmations.length)];
 }
 
 // Show affirmation on load
 document.addEventListener('DOMContentLoaded', () => {
-  const affirmation = getDailyAffirmation();
+  const affirmation = getRandomAffirmation();
   const emojiEl = document.getElementById('affirmationEmoji');
   const textEl = document.getElementById('affirmationText');
   const overlay = document.getElementById('affirmationOverlay');
@@ -55,18 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Initial state - hide portfolio until affirmation is dismissed
   if (portfolio) portfolio.style.display = 'none';
   document.body.style.overflow = 'hidden';
 });
 
-// ===== CUSTOM CURSOR ANIMATION =====
+// ===== CUSTOM CURSOR (always on, works immediately) =====
 const cursor = document.getElementById('cursor');
 const ring = document.getElementById('cursorRing');
-let mx = 0,
-  my = 0,
-  rx = 0,
-  ry = 0;
+let mx = 0, my = 0, rx = 0, ry = 0;
 
 document.addEventListener('mousemove', (e) => {
   mx = e.clientX;
@@ -86,7 +72,10 @@ document.addEventListener('mousedown', () => {
   if (cursor) cursor.style.transform += ' scale(1.6)';
   if (ring) ring.style.transform += ' scale(0.6)';
 });
-document.addEventListener('mouseup', () => {});
+document.addEventListener('mouseup', () => {
+  if (cursor) cursor.style.transform = cursor.style.transform.replace(' scale(1.6)', '');
+  if (ring) ring.style.transform = ring.style.transform.replace(' scale(0.6)', '');
+});
 
 // ===== HEART BUTTON TOGGLE =====
 const heartBtn = document.getElementById('heartBtn');
@@ -110,7 +99,7 @@ const observer = new IntersectionObserver(
     });
   },
   { threshold: 0.1 }
-); // Changed from 0.15 to 0.1 for mobile
+);
 
 document.querySelectorAll('[data-observe]').forEach((el) => observer.observe(el));
 
@@ -317,7 +306,7 @@ if (floatToggle && floatCard) {
   });
 }
 
-// ===== TIME-OF-DAY THEME (already in HTML, just ensuring it runs) =====
+// ===== TIME-OF-DAY THEME =====
 (function () {
   const themes = {
     dawn: { hours: [5, 6, 7, 8, 9, 10, 11], emoji: '🌅', label: 'good morning' },
