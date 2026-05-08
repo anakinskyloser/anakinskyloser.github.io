@@ -1,4 +1,4 @@
-// ===== RANDOM AFFIRMATION ON EVERY PAGE LOAD =====
+// ===== RANDOM AFFIRMATION ON EVERY PAGE LOAD (NO CACHING) =====
 const affirmations = [
   { emoji: '🌸', text: "you're blooming exactly where you're planted" },
   { emoji: '✨', text: "you have magic within you, don't forget it" },
@@ -15,15 +15,21 @@ const affirmations = [
   { emoji: '🕯️', text: 'your light matters. keep glowing' },
   { emoji: '🧸', text: 'you are loved and enough, always' },
   { emoji: '☁️', text: 'float through today with ease' },
+  { emoji: '🌟', text: 'you are a star, don\'t let anyone dim your light' },
+  { emoji: '🍀', text: 'luck is when preparation meets opportunity — you\'re ready' },
 ];
 
+// Simple function that ALWAYS picks a random affirmation (no localStorage)
 function getRandomAffirmation() {
-  return affirmations[Math.floor(Math.random() * affirmations.length)];
+  const randomIndex = Math.floor(Math.random() * affirmations.length);
+  return affirmations[randomIndex];
 }
 
-// Show affirmation on load
+// Show affirmation on load — DIRECT, no caching
 document.addEventListener('DOMContentLoaded', () => {
+  // Get a fresh random affirmation every time
   const affirmation = getRandomAffirmation();
+  
   const emojiEl = document.getElementById('affirmationEmoji');
   const textEl = document.getElementById('affirmationText');
   const overlay = document.getElementById('affirmationOverlay');
@@ -118,30 +124,28 @@ const SB_URL = 'https://kpevnqnnajefeatjzdtp.supabase.co';
 const SB_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtwZXZucW5uYWplZmVhdGp6ZHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNzI5MzMsImV4cCI6MjA5Mzc0ODkzM30.FQ11whhlYnO4W6PYo879dhS0-PUrhYxnVvKhoXCJdJo';
 
-async function sbFetch(path, options = {}) {
-  const res = await fetch(SB_URL + path, {
-    ...options,
-    headers: {
-      apikey: SB_KEY,
-      Authorization: 'Bearer ' + SB_KEY,
-      'Content-Type': 'application/json',
-      Prefer: options.prefer || '',
-      ...options.headers,
-    },
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.status === 204 ? null : res.json();
-}
-
 let selectedEmoji = '🌸';
 
-// Emoji picker
-document.querySelectorAll('.emoji-opt').forEach((btn) => {
-  if (btn.dataset.emoji === selectedEmoji) btn.classList.add('selected');
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.emoji-opt').forEach((b) => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedEmoji = btn.dataset.emoji;
+// Fix: Emoji picker - make sure every emoji works
+document.addEventListener('DOMContentLoaded', () => {
+  const emojiOptions = document.querySelectorAll('.emoji-opt');
+  
+  emojiOptions.forEach((btn) => {
+    // Set initial selected state
+    if (btn.dataset.emoji === selectedEmoji) {
+      btn.classList.add('selected');
+    }
+    
+    // Add click handler to each emoji
+    btn.addEventListener('click', () => {
+      // Remove selected class from all emojis
+      emojiOptions.forEach((b) => b.classList.remove('selected'));
+      // Add selected class to clicked emoji
+      btn.classList.add('selected');
+      // Update the selected emoji value
+      selectedEmoji = btn.dataset.emoji;
+      console.log('Selected emoji:', selectedEmoji); // For debugging
+    });
   });
 });
 
@@ -235,6 +239,21 @@ async function loadEntries() {
   }
 }
 
+async function sbFetch(path, options = {}) {
+  const res = await fetch(SB_URL + path, {
+    ...options,
+    headers: {
+      apikey: SB_KEY,
+      Authorization: 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json',
+      Prefer: options.prefer || '',
+      ...options.headers,
+    },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.status === 204 ? null : res.json();
+}
+
 const submitBtn = document.getElementById('submitBtn');
 if (submitBtn) {
   submitBtn.addEventListener('click', async () => {
@@ -244,10 +263,12 @@ if (submitBtn) {
 
     if (!name) {
       document.getElementById('gb-name')?.focus();
+      showToast('Please enter your name 🌸');
       return;
     }
     if (!message) {
       msgInput?.focus();
+      showToast('Please leave a message ✨');
       return;
     }
 
@@ -275,6 +296,8 @@ if (submitBtn) {
         charCount.textContent = '280 left';
         charCount.style.color = 'var(--light)';
       }
+      
+      // Reset emoji picker to default flower
       selectedEmoji = '🌸';
       document.querySelectorAll('.emoji-opt').forEach((b) => b.classList.remove('selected'));
       document.querySelector('.emoji-opt[data-emoji="🌸"]')?.classList.add('selected');
@@ -338,15 +361,19 @@ if (floatToggle && floatCard) {
   document.documentElement.setAttribute('data-theme', initial.name);
 
   document.addEventListener('DOMContentLoaded', () => {
-    const badge = document.createElement('div');
-    badge.className = 'time-badge';
-    badge.id = 'timeBadge';
+    // Check if badge already exists (in case it was added by affirmation code)
+    let badge = document.getElementById('timeBadge');
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.className = 'time-badge';
+      badge.id = 'timeBadge';
+      document.body.appendChild(badge);
+    }
     badge.innerHTML = `
       <span class="time-badge-dot"></span>
       <span class="time-badge-emoji">${initial.emoji}</span>
       <span class="time-badge-text">${initial.label}</span>
     `;
-    document.body.appendChild(badge);
     setInterval(() => applyTheme(getTheme()), 60 * 1000);
   });
 })();
